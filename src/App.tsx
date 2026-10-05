@@ -5,9 +5,15 @@ import {
   Route,
 } from "react-router-dom";
 import Application from "./pages/Application";
+import AddApplication from "./pages/AddApplication";
 
 const router = createBrowserRouter(
-  createRoutesFromElements(<Route path="/" element={<Application />} />),
+  createRoutesFromElements(
+    <Route path="/">
+      <Route index element={<Application />} />
+      <Route path="add-application" element={<AddApplication />} />
+    </Route>,
+  ),
 );
 
 const App = () => {
