@@ -98,6 +98,19 @@ const ApplicationForm = () => {
           </option>
         ))}
       </select>
+      <label htmlFor="location">Job URL:</label>
+      <input
+        type="text"
+        id="location"
+        value={formData.jobUrl || ""}
+        onChange={(e) =>
+          setFormData({
+            ...formData,
+            jobUrl: e.target.value,
+          })
+        }
+        name="jobUrl"
+      />
     </form>
   );
 };
