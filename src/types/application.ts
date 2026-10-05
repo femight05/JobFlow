@@ -15,5 +15,5 @@ export interface JobApplication {
   jobType: JobType;
   status: Status;
   appliedDate: string;
-  jobURL: string;
+  jobUrl: string;
 }

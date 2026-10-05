@@ -9,6 +9,7 @@ import {
 import ApplicationCard from "../components/ApplicationCard";
 import { application } from "../data/application";
 import type { Status } from "../types/application";
+import { Link } from "react-router-dom";
 
 const statuses: Array<Status | "All statuses"> = [
   "All statuses",
@@ -21,8 +22,9 @@ const statuses: Array<Status | "All statuses"> = [
 
 const Application = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] =
-    useState<Status | "All statuses">("All statuses");
+  const [selectedStatus, setSelectedStatus] = useState<Status | "All statuses">(
+    "All statuses",
+  );
 
   const filteredApplications = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -88,13 +90,13 @@ const Application = () => {
               Keep every opportunity moving forward.
             </p>
           </div>
-          <button
-            type="button"
+          <Link
+            to="/add-application"
             className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:self-center"
           >
             <span className="text-lg leading-none">+</span>
-            Add application
-          </button>
+            Add Application
+          </Link>
         </header>
 
         <section
@@ -162,7 +164,9 @@ const Application = () => {
                 id="status"
                 value={selectedStatus}
                 onChange={(event) =>
-                  setSelectedStatus(event.target.value as Status | "All statuses")
+                  setSelectedStatus(
+                    event.target.value as Status | "All statuses",
+                  )
                 }
                 className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
               >
