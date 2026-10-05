@@ -1,4 +1,5 @@
 import { ArrowLeft, BriefcaseBusiness, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import ApplicationForm from "../components/ApplicationForm";
 
 const AddApplication = () => {
@@ -6,13 +7,13 @@ const AddApplication = () => {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#f5f3ff_0%,#eef2ff_32%,#f8fafc_100%)] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <button
-            type="button"
+          <Link
+            to="/"
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur transition hover:border-slate-300 hover:text-slate-900"
           >
             <ArrowLeft size={16} />
             Back
-          </button>
+          </Link>
 
           <div className="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700">
             <BriefcaseBusiness size={14} />
@@ -27,7 +28,7 @@ const AddApplication = () => {
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-violet-600">
                   Add opportunity
                 </p>
-                <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                <h1 className="mt-2 text-xl font-bold tracking-tight text-slate-900 sm:text-4xl">
                   Track a new job
                 </h1>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
