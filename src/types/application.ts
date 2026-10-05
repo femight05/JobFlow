@@ -1,10 +1,15 @@
-type JobType = "Full" | "Part" | "Internship" | "Contract";
+export type JobType = "Full-time" | "Part-time" | "Internship" | "Contract";
 
-type Status = "Applied" | "Interview" | "Offer" | "Rejected" | "Withdrawn";
+export type Status =
+  | "Applied"
+  | "Interview"
+  | "Offer"
+  | "Rejected"
+  | "Withdrawn";
 
 export interface JobApplication {
   id: number;
-  comapny: string;
+  company: string;
   position: string;
   location: string;
   jobType: JobType;
