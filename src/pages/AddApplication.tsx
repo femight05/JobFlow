@@ -63,7 +63,7 @@ const AddApplication = () => {
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200"
+                className="inline-flex items-center cursor-pointer justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200"
               >
                 <Plus size={16} />
                 Add Application
