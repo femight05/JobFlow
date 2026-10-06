@@ -28,7 +28,7 @@ export const application: JobApplication[] = [
     note: "This is a great opportunity to work with cutting-edge technologies and be part of a dynamic team. The company offers competitive compensation, benefits, and opportunities for growth.",
   },
   {
-    id: 3,
+    id: 4,
     company: "Google",
     position: "Frontend Engineer",
     location: "Remote",

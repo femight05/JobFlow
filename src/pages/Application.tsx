@@ -7,9 +7,10 @@ import {
   Video,
 } from "lucide-react";
 import ApplicationCard from "../components/ApplicationCard";
-import { application } from "../data/application";
 import type { Status } from "../types/application";
 import { Link } from "react-router-dom";
+import { getApplications } from "../data/applicationStorage";
+import type { JobApplication } from "../types/application";
 
 const statuses: Array<Status | "All statuses"> = [
   "All statuses",
@@ -21,6 +22,20 @@ const statuses: Array<Status | "All statuses"> = [
 ];
 
 const Application = () => {
+  const [storedData] = useState(() => {
+    try {
+      return { applications: getApplications(), error: "" };
+    } catch (error) {
+      return {
+        applications: [] as JobApplication[],
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unable to load saved applications.",
+      };
+    }
+  });
+  const { applications, error: storageError } = storedData;
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<Status | "All statuses">(
     "All statuses",
@@ -29,7 +44,7 @@ const Application = () => {
   const filteredApplications = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return application.filter((item) => {
+    return applications.filter((item) => {
       const matchesQuery =
         !query ||
         [item.company, item.position, item.location].some((value) =>
@@ -40,19 +55,19 @@ const Application = () => {
 
       return matchesQuery && matchesStatus;
     });
-  }, [searchQuery, selectedStatus]);
+  }, [applications, searchQuery, selectedStatus]);
 
   const metrics = [
     {
       label: "Total applications",
-      value: application.length,
+      value: applications.length,
       note: "Across all roles",
       icon: BriefcaseBusiness,
       color: "bg-violet-50 text-violet-600",
     },
     {
       label: "In progress",
-      value: application.filter(
+      value: applications.filter(
         (item) => item.status === "Applied" || item.status === "Interview",
       ).length,
       note: "Keep the momentum",
@@ -61,14 +76,14 @@ const Application = () => {
     },
     {
       label: "Interviews",
-      value: application.filter((item) => item.status === "Interview").length,
+      value: applications.filter((item) => item.status === "Interview").length,
       note: "Opportunities in motion",
       icon: Video,
       color: "bg-amber-50 text-amber-600",
     },
     {
       label: "Offers",
-      value: application.filter((item) => item.status === "Offer").length,
+      value: applications.filter((item) => item.status === "Offer").length,
       note: "Good things ahead",
       icon: CircleCheck,
       color: "bg-emerald-50 text-emerald-600",
@@ -78,6 +93,11 @@ const Application = () => {
   return (
     <main className="min-h-screen bg-[#f7f8fc] px-4 py-8 text-slate-900 sm:px-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-7xl">
+        {storageError && (
+          <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+            {storageError}
+          </p>
+        )}
         <header className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-600">
