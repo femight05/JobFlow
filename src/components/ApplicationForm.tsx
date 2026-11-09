@@ -148,6 +148,23 @@ const ApplicationForm = () => {
         </div>
       </div>
 
+      <div>
+        <label className={labelClassName} htmlFor="note">
+          Notes about this job
+        </label>
+        <textarea
+          id="note"
+          name="note"
+          rows={4}
+          placeholder="Add notes about the role, company, or application process"
+          value={formData.note || ""}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, note: e.target.value }))
+          }
+          className={inputClassName}
+        />
+      </div>
+
       <p className="border-t border-slate-100 pt-5 text-xs leading-5 text-slate-400">
         Add the details you have now. You can update the application as things
         progress.
