@@ -26,7 +26,7 @@ const updateApplication = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const application = await Application.findByIdAndUpdate(id, req.body, {
-      new: true,
+      returnDocument: "after",
     });
     if (!application) {
       return res
