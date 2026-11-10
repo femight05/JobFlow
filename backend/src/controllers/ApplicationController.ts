@@ -22,4 +22,22 @@ const createApplication = async (req: Request, res: Response) => {
   }
 };
 
-export { getApplications, createApplication };
+const updateApplication = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const application = await Application.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!application) {
+      return res
+        .status(404)
+        .json({ error: "Not Found", message: "Application not found." });
+    }
+    res.json(application);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ error: "Internal Server Error", message: message });
+  }
+};
+
+export { getApplications, createApplication, updateApplication };
