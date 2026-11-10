@@ -1,12 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import connectDB from "./config/connect.ts";
+import applicationRouter from "./routes/ApplicationRoute.ts";
 
 const app = express();
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+app.use("/api/applications", applicationRouter);
 
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
