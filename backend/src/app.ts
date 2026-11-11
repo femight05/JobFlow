@@ -2,10 +2,12 @@ import "dotenv/config";
 import express from "express";
 import connectDB from "./config/connect.ts";
 import applicationRouter from "./routes/ApplicationRoute.ts";
+import userRouter from "./routes/userRoutes.ts";
 import notFoundMiddleware from "./errors/notFound.ts";
 const app = express();
 app.use(express.json());
 
+app.use("/api/users", userRouter);
 app.use("/api/applications", applicationRouter);
 app.use(notFoundMiddleware);
 
