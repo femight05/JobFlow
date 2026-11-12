@@ -7,6 +7,8 @@ import {
 import Application from "./pages/Application";
 import AddApplication from "./pages/AddApplication";
 import ApplicationDetail from "./pages/ApplicationDetail";
+import SignUpPage from "./pages/SignUpPage";
+import LoginPage from "./pages/LoginPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -14,6 +16,8 @@ const router = createBrowserRouter(
       <Route index element={<Application />} />
       <Route path="add-application" element={<AddApplication />} />
       <Route path="applications/:id" element={<ApplicationDetail />} />
+      <Route path="sign-up" element={<SignUpPage />} />
+      <Route path="login" element={<LoginPage />} />
     </Route>,
   ),
 );
