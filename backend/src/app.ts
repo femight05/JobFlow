@@ -3,12 +3,13 @@ import express from "express";
 import connectDB from "./config/connect.ts";
 import applicationRouter from "./routes/ApplicationRoute.ts";
 import userRouter from "./routes/userRoutes.ts";
+import authMiddleware from "./middleware/auth.ts";
 import notFoundMiddleware from "./errors/notFound.ts";
 const app = express();
 app.use(express.json());
 
-app.use("/api/users", userRouter);
-app.use("/api/applications", applicationRouter);
+app.use("/api/auth", userRouter);
+app.use("/api/applications", authMiddleware, applicationRouter);
 app.use(notFoundMiddleware);
 
 const PORT = process.env.PORT || 5000;
