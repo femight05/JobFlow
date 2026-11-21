@@ -34,10 +34,10 @@ const updateApplication = async (req: Request, res: Response) => {
   try {
     const { id: applicationId } = req.params;
     const application = await Application.findOneAndUpdate(
-      { id: applicationId, createdBy: req.user?.id },
+      { _id: applicationId, createdBy: req.user?.id },
       req.body,
       {
-        new: true,
+        returnDocument: "after",
         runValidator: true,
       },
     );
@@ -53,4 +53,31 @@ const updateApplication = async (req: Request, res: Response) => {
   }
 };
 
-export { getApplications, createApplication, updateApplication };
+const deleteApplication = async (req: Request, res: Response) => {
+  try {
+    const { id: applicationId } = req.params;
+    const application = await Application.findOneAndDelete({
+      _id: applicationId,
+      createdBy: req.user?.id,
+    });
+    if (!application) {
+      return res
+        .status(404)
+        .json({
+          error: "Not Found",
+          message: `Application with the ID: ${applicationId} is not Found.`,
+        });
+    }
+    res.json(application);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ error: "Internal Server Error", message: message });
+  }
+};
+
+export {
+  getApplications,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+};
