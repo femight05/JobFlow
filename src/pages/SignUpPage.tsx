@@ -1,6 +1,32 @@
 import { BriefcaseBusiness, Check } from "lucide-react";
+import { api } from "../services/api";
+import { useState } from "react";
 
 const SignUpPage = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const data = await api("/users/register", {
+        method: "POST",
+
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#f7f6f2] px-4 py-8 text-slate-900 sm:px-6">
       <section className="grid w-full max-w-5xl overflow-hidden rounded-[28px] bg-white shadow-[0_24px_80px_rgba(30,41,59,0.12)] md:grid-cols-2">
@@ -49,7 +75,12 @@ const SignUpPage = () => {
               Set up your space and make your job search feel more manageable.
             </p>
 
-            <form action="" method="post" className="mt-8 space-y-5">
+            <form
+              onSubmit={handleSubmit}
+              action=""
+              method="post"
+              className="mt-8 space-y-5"
+            >
               <div>
                 <label
                   htmlFor="name"
@@ -62,6 +93,8 @@ const SignUpPage = () => {
                   id="name"
                   name="name"
                   placeholder="e.g. Alex Morgan"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
                   required
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
@@ -79,6 +112,8 @@ const SignUpPage = () => {
                   id="email"
                   name="email"
                   placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
                   required
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
@@ -97,6 +132,8 @@ const SignUpPage = () => {
                   name="password"
                   placeholder="At least 8 characters"
                   autoComplete="new-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
                   required
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100"
