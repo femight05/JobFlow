@@ -17,11 +17,16 @@ const applicationSchema = new mongoose.Schema({
   jobUrl: { type: String, required: true },
   description: { type: String },
   note: { type: String },
-  user: {
+  createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
 });
+
+export type ApplicationInput = Omit<
+  mongoose.InferSchemaType<typeof applicationSchema>,
+  "user"
+>;
 
 export default mongoose.model("Application", applicationSchema);
