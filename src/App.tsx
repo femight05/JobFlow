@@ -1,29 +1,34 @@
-import {
-  RouterProvider,
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Application from "./pages/Application";
 import AddApplication from "./pages/AddApplication";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/">
-      <Route index element={<Application />} />
-      <Route path="add-application" element={<AddApplication />} />
-      <Route path="applications/:id" element={<ApplicationDetail />} />
-      <Route path="sign-up" element={<SignUpPage />} />
-      <Route path="login" element={<LoginPage />} />
-    </Route>,
-  ),
-);
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
-const App = () => {
-  return <RouterProvider router={router} />;
-};
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Application />} />
+            <Route path="/add-application" element={<AddApplication />} />
+            <Route path="/applicationdetails" element={<ApplicationDetail />} />
+          </Route>
+
+          {/* Default route */}
+          <Route path="/" element={<Navigate to="/signup" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
 
 export default App;

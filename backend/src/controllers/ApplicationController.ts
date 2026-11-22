@@ -44,7 +44,10 @@ const updateApplication = async (req: Request, res: Response) => {
     if (!application) {
       return res
         .status(404)
-        .json({ error: "Not Found", message: "Application not found." });
+        .json({
+          error: "Not Found",
+          message: `Application with the ID: ${applicationId} is not Found.`,
+        });
     }
     res.json(application);
   } catch (error: unknown) {
@@ -61,12 +64,10 @@ const deleteApplication = async (req: Request, res: Response) => {
       createdBy: req.user?.id,
     });
     if (!application) {
-      return res
-        .status(404)
-        .json({
-          error: "Not Found",
-          message: `Application with the ID: ${applicationId} is not Found.`,
-        });
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Application with the ID: ${applicationId} is not Found.`,
+      });
     }
     res.json(application);
   } catch (error: unknown) {

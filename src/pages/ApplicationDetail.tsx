@@ -87,7 +87,7 @@ const ApplicationDetail = () => {
               "This application may have been removed or the link is invalid."}
           </p>
           <Link
-            to="/"
+            to="/dashboard"
             className="mt-6 inline-flex font-semibold text-violet-600 hover:text-violet-800"
           >
             Back to applications
@@ -101,14 +101,17 @@ const ApplicationDetail = () => {
     <main className="min-h-screen bg-[#f7f8fc] px-4 py-8 text-slate-900 sm:px-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-3xl">
         <Link
-          to="/"
+          to="/dashboard"
           className="mb-6 inline-flex font-semibold text-violet-600 hover:text-violet-800"
         >
           Back to applications
         </Link>
         <article className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
           {error && (
-            <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+            <p
+              role="alert"
+              className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700"
+            >
               {error}
             </p>
           )}
@@ -121,7 +124,9 @@ const ApplicationDetail = () => {
                   <input
                     required
                     value={draft.company}
-                    onChange={(event) => updateDraft("company", event.target.value)}
+                    onChange={(event) =>
+                      updateDraft("company", event.target.value)
+                    }
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   />
                 </label>
@@ -130,7 +135,9 @@ const ApplicationDetail = () => {
                   <input
                     required
                     value={draft.position}
-                    onChange={(event) => updateDraft("position", event.target.value)}
+                    onChange={(event) =>
+                      updateDraft("position", event.target.value)
+                    }
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   />
                 </label>
@@ -139,7 +146,9 @@ const ApplicationDetail = () => {
                   <input
                     required
                     value={draft.location}
-                    onChange={(event) => updateDraft("location", event.target.value)}
+                    onChange={(event) =>
+                      updateDraft("location", event.target.value)
+                    }
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   />
                 </label>
@@ -168,11 +177,15 @@ const ApplicationDetail = () => {
                     }
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   >
-                    {["Applied", "Interview", "Offer", "Rejected", "Withdrawn"].map(
-                      (status) => (
-                        <option key={status}>{status}</option>
-                      ),
-                    )}
+                    {[
+                      "Applied",
+                      "Interview",
+                      "Offer",
+                      "Rejected",
+                      "Withdrawn",
+                    ].map((status) => (
+                      <option key={status}>{status}</option>
+                    ))}
                   </select>
                 </label>
                 <label className="text-sm font-semibold text-slate-700">
@@ -193,7 +206,9 @@ const ApplicationDetail = () => {
                     type="url"
                     required
                     value={draft.jobUrl}
-                    onChange={(event) => updateDraft("jobUrl", event.target.value)}
+                    onChange={(event) =>
+                      updateDraft("jobUrl", event.target.value)
+                    }
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   />
                 </label>
@@ -212,7 +227,9 @@ const ApplicationDetail = () => {
                   Note
                   <textarea
                     value={draft.note || ""}
-                    onChange={(event) => updateDraft("note", event.target.value)}
+                    onChange={(event) =>
+                      updateDraft("note", event.target.value)
+                    }
                     rows={3}
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-normal"
                   />
