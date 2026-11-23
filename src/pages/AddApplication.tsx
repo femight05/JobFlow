@@ -8,7 +8,7 @@ const AddApplication = () => {
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm font-medium text-slate-600 shadow-sm backdrop-blur transition hover:border-slate-300 hover:text-slate-900"
           >
             <ArrowLeft size={16} />

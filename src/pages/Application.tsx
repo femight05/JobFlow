@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BriefcaseBusiness,
   CircleCheck,
@@ -7,10 +7,10 @@ import {
   Video,
 } from "lucide-react";
 import ApplicationCard from "../components/ApplicationCard";
-import type { Status } from "../types/application";
+import type { JobApplication, JobType, Status } from "../types/application";
 import { Link } from "react-router-dom";
-import { getApplications } from "../data/applicationStorage";
-import type { JobApplication } from "../types/application";
+import { api } from "../services/api";
+import { useAuth } from "../context/authContextStore";
 
 const statuses: Array<Status | "All statuses"> = [
   "All statuses",
@@ -21,25 +21,118 @@ const statuses: Array<Status | "All statuses"> = [
   "Withdrawn",
 ];
 
+const isJobType = (value: unknown): value is JobType =>
+  value === "Full-time" ||
+  value === "Part-time" ||
+  value === "Internship" ||
+  value === "Contract";
+
+const isStatus = (value: unknown): value is Status =>
+  value === "Applied" ||
+  value === "Interview" ||
+  value === "Offer" ||
+  value === "Rejected" ||
+  value === "Withdrawn";
+
+const mapBackendApplication = (value: unknown): JobApplication => {
+  if (typeof value !== "object" || value === null) {
+    throw new Error("The server returned invalid application data.");
+  }
+
+  const record = value as Record<string, unknown>;
+  const status = record.status === "Offer Received" ? "Offer" : record.status;
+
+  if (
+    typeof record._id !== "string" ||
+    typeof record.company !== "string" ||
+    typeof record.position !== "string" ||
+    typeof record.location !== "string" ||
+    !isJobType(record.jobType) ||
+    !isStatus(status) ||
+    typeof record.appliedDate !== "string" ||
+    typeof record.jobUrl !== "string" ||
+    (record.description !== undefined &&
+      typeof record.description !== "string") ||
+    (record.note !== undefined && typeof record.note !== "string")
+  ) {
+    throw new Error("The server returned invalid application data.");
+  }
+
+  const appliedDate = new Date(record.appliedDate);
+  if (Number.isNaN(appliedDate.getTime())) {
+    throw new Error("The server returned an invalid application date.");
+  }
+
+  return {
+    id: record._id,
+    company: record.company,
+    position: record.position,
+    location: record.location,
+    jobType: record.jobType,
+    status,
+    appliedDate: appliedDate.toISOString().slice(0, 10),
+    jobUrl: record.jobUrl,
+    description: record.description,
+    note: record.note,
+  };
+};
+
 const Application = () => {
-  const [storedData] = useState(() => {
-    try {
-      return { applications: getApplications(), error: "" };
-    } catch (error) {
-      return {
-        applications: [] as JobApplication[],
-        error:
-          error instanceof Error
-            ? error.message
-            : "Unable to load saved applications.",
-      };
-    }
-  });
-  const { applications, error: storageError } = storedData;
+  const { token } = useAuth();
+  const [loadState, setLoadState] = useState<{
+    token: string;
+    applications: JobApplication[];
+    error: string;
+  } | null>(null);
+  const isLoading = Boolean(token) && loadState?.token !== token;
+  const applications =
+    token && loadState?.token === token ? loadState.applications : [];
+  const error = token
+    ? loadState?.token === token
+      ? loadState.error
+      : ""
+    : "Please sign in to view your applications.";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<Status | "All statuses">(
     "All statuses",
   );
+
+  useEffect(() => {
+    if (!token) return;
+
+    let isActive = true;
+    const loadApplications = async () => {
+      try {
+        const data: unknown = await api("/applications", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!Array.isArray(data)) {
+          throw new Error("The server returned invalid application data.");
+        }
+
+        const loadedApplications = data.map(mapBackendApplication);
+        if (isActive) {
+          setLoadState({ token, applications: loadedApplications, error: "" });
+        }
+      } catch (loadError) {
+        if (isActive) {
+          setLoadState({
+            token,
+            applications: [],
+            error:
+              loadError instanceof Error
+                ? loadError.message
+                : "Unable to load applications.",
+          });
+        }
+      }
+    };
+
+    void loadApplications();
+    return () => {
+      isActive = false;
+    };
+  }, [token]);
 
   const filteredApplications = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -93,9 +186,9 @@ const Application = () => {
   return (
     <main className="min-h-screen bg-[#f7f8fc] px-4 py-8 text-slate-900 sm:px-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-7xl">
-        {storageError && (
+        {error && (
           <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">
-            {storageError}
+            {error}
           </p>
         )}
         <header className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -199,7 +292,11 @@ const Application = () => {
             </div>
           </div>
 
-          {filteredApplications.length > 0 ? (
+          {isLoading ? (
+            <p className="rounded-2xl border border-slate-100 bg-white px-6 py-16 text-center text-sm text-slate-500">
+              Loading applications...
+            </p>
+          ) : filteredApplications.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredApplications.map((item) => (
                 <ApplicationCard key={item.id} applicationData={item} />

@@ -8,7 +8,7 @@ export type Status =
   | "Withdrawn";
 
 export interface JobApplication {
-  id: number;
+  id: number | string;
   company: string;
   position: string;
   location: string;
