@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BriefcaseBusiness,
   CircleCheck,
+  LogOut,
   Search,
   Send,
   Video,
 } from "lucide-react";
 import ApplicationCard from "../components/ApplicationCard";
 import type { JobApplication, Status } from "../types/application";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../context/authContextStore";
 import { mapBackendApplication } from "../services/applicationMapper";
@@ -23,7 +24,8 @@ const statuses: Array<Status | "All statuses"> = [
 ];
 
 const Application = () => {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
   const [loadState, setLoadState] = useState<{
     token: string;
     applications: JobApplication[];
@@ -128,6 +130,11 @@ const Application = () => {
     },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <main className="min-h-screen bg-[#f7f8fc] px-4 py-8 text-slate-900 sm:px-6 lg:px-10 lg:py-10">
       <div className="mx-auto max-w-7xl">
@@ -148,13 +155,23 @@ const Application = () => {
               Keep every opportunity moving forward.
             </p>
           </div>
-          <Link
-            to="/add-application"
-            className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:self-center"
-          >
-            <span className="text-lg leading-none">+</span>
-            Add Application
-          </Link>
+          <div className="flex items-center gap-3 self-start sm:self-center">
+            <Link
+              to="/add-application"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200"
+            >
+              <span className="text-lg leading-none">+</span>
+              Add Application
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-100"
+            >
+              <LogOut aria-hidden="true" size={17} />
+              Logout
+            </button>
+          </div>
         </header>
 
         <section

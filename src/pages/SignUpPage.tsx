@@ -1,7 +1,7 @@
 import { BriefcaseBusiness, Check } from "lucide-react";
 import { api } from "../services/api";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContextStore";
 
 const SignUpPage = () => {
@@ -34,7 +34,9 @@ const SignUpPage = () => {
       console.log(data);
     } catch (error) {
       console.error(error);
-      setError(error instanceof Error ? error.message : "Unable to create account");
+      setError(
+        error instanceof Error ? error.message : "Unable to create account",
+      );
     }
   };
 
@@ -167,6 +169,15 @@ const SignUpPage = () => {
             </form>
             <p className="mt-5 text-center text-xs leading-5 text-slate-400">
               You can update your details anytime.
+            </p>
+            <p className="mt-2 text-center text-sm text-grey-400">
+              Already have an account?
+              <Link
+                to={"/login"}
+                className="text-sky-700 ml-1  hover:text-red-500 hover:underline hover:underline-offset-2"
+              >
+                Sign In
+              </Link>
             </p>
           </div>
         </div>

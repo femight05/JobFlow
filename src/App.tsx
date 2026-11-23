@@ -12,18 +12,15 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public routes */}
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Application />} />
             <Route path="/add-application" element={<AddApplication />} />
             <Route path="/applications/:id" element={<ApplicationDetail />} />
           </Route>
 
-          {/* Default route */}
           <Route path="/" element={<Navigate to="/signup" replace />} />
         </Routes>
       </AuthProvider>
