@@ -20,7 +20,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Application />} />
             <Route path="/add-application" element={<AddApplication />} />
-            <Route path="/applicationdetails" element={<ApplicationDetail />} />
+            <Route path="/applications/:id" element={<ApplicationDetail />} />
           </Route>
 
           {/* Default route */}

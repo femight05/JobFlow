@@ -19,6 +19,25 @@ const getApplications = async (req: Request, res: Response) => {
   }
 };
 
+const getApplication = async (req: Request, res: Response) => {
+  try {
+    const application = await Application.findOne({
+      _id: req.params.id,
+      createdBy: req.user?.id,
+    });
+    if (!application) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: "Application was not found.",
+      });
+    }
+    res.status(200).json(application);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ error: "Internal Server Error", message });
+  }
+};
+
 const createApplication = async (req: ApplicationRequest, res: Response) => {
   try {
     req.body.createdBy = req.user?.id;
@@ -38,7 +57,7 @@ const updateApplication = async (req: Request, res: Response) => {
       req.body,
       {
         returnDocument: "after",
-        runValidator: true,
+        runValidators: true,
       },
     );
     if (!application) {
@@ -78,6 +97,7 @@ const deleteApplication = async (req: Request, res: Response) => {
 
 export {
   getApplications,
+  getApplication,
   createApplication,
   updateApplication,
   deleteApplication,

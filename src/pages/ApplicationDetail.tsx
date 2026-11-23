@@ -1,32 +1,81 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { application } from "../data/application";
-import { getApplications, saveApplications } from "../data/applicationStorage";
+import { api } from "../services/api";
+import { useAuth } from "../context/authContextStore";
+import {
+  mapBackendApplication,
+  toBackendApplicationStatus,
+} from "../services/applicationMapper";
 import type { JobApplication, JobType, Status } from "../types/application";
 import StatusBadge from "../components/StatusBadge";
 
 const ApplicationDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const applicationId = Number(id);
-  const [storedData, setStoredData] = useState(() => {
-    try {
-      return { applications: getApplications(), error: "" };
-    } catch (loadError) {
-      return {
-        applications: application,
-        error:
-          loadError instanceof Error
-            ? loadError.message
-            : "Unable to load saved applications.",
-      };
-    }
-  });
-  const { applications, error } = storedData;
+  const { token } = useAuth();
+  const requestKey = `${token ?? ""}:${id ?? ""}`;
+  const [loadState, setLoadState] = useState<{
+    key: string;
+    application: JobApplication | null;
+    error: string;
+  } | null>(null);
+  const [actionError, setActionError] = useState<{
+    key: string;
+    message: string;
+  } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<JobApplication | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const app = applications.find((item) => item.id === applicationId);
+  const currentLoadState = loadState?.key === requestKey ? loadState : null;
+  const app = currentLoadState?.application ?? null;
+  const isLoading = Boolean(token && id) && currentLoadState === null;
+  const error =
+    (actionError?.key === requestKey ? actionError.message : "") ||
+    (!token
+      ? "Please sign in to view this application."
+      : !id
+        ? "Application ID is missing."
+        : (currentLoadState?.error ?? ""));
+
+  useEffect(() => {
+    if (!token || !id) return;
+
+    let isActive = true;
+    const loadApplication = async () => {
+      try {
+        const data: unknown = await api(
+          `/applications/${encodeURIComponent(id)}`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        const loadedApplication = mapBackendApplication(data);
+        if (isActive) {
+          setLoadState({
+            key: requestKey,
+            application: loadedApplication,
+            error: "",
+          });
+        }
+      } catch (loadError) {
+        if (isActive) {
+          setLoadState({
+            key: requestKey,
+            application: null,
+            error:
+              loadError instanceof Error
+                ? loadError.message
+                : "Unable to load this application.",
+          });
+        }
+      }
+    };
+
+    void loadApplication();
+    return () => {
+      isActive = false;
+    };
+  }, [id, requestKey, token]);
 
   const updateDraft = <K extends keyof JobApplication>(
     field: K,
@@ -35,47 +84,96 @@ const ApplicationDetail = () => {
     setDraft((current) => (current ? { ...current, [field]: value } : current));
   };
 
-  const handleSave = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!draft) return;
-
-    const updatedApplications = applications.map((item) =>
-      item.id === draft.id ? draft : item,
-    );
-
+    if (!token) {
+      setActionError({
+        key: requestKey,
+        message: "Please sign in to update this application.",
+      });
+      return;
+    }
+    if (isSaving) return;
+    setActionError(null);
+    setIsSaving(true);
     try {
-      saveApplications(updatedApplications);
-      setStoredData({ applications: updatedApplications, error: "" });
+      const { id: applicationId, ...updates } = draft;
+      const data: unknown = await api(
+        `/applications/${encodeURIComponent(String(applicationId))}`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            ...updates,
+            status: toBackendApplicationStatus(draft.status),
+          }),
+        },
+      );
+      const updatedApplication = mapBackendApplication(data);
+      setLoadState({
+        key: requestKey,
+        application: updatedApplication,
+        error: "",
+      });
       setIsEditing(false);
+      setDraft(null);
     } catch (saveError) {
-      setStoredData((current) => ({
-        ...current,
-        error:
+      setActionError({
+        key: requestKey,
+        message:
           saveError instanceof Error
             ? saveError.message
             : "Unable to save application changes.",
-      }));
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = () => {
-    if (!app || !window.confirm(`Delete the application for ${app.company}?`)) {
+  const handleDelete = async () => {
+    if (!app || isDeleting) return;
+    if (!token) {
+      setActionError({
+        key: requestKey,
+        message: "Please sign in to delete this application.",
+      });
+      return;
+    }
+    if (!window.confirm(`Delete the application for ${app.company}?`)) {
       return;
     }
 
+    setActionError(null);
+    setIsDeleting(true);
     try {
-      saveApplications(applications.filter((item) => item.id !== app.id));
-      navigate("/");
+      await api(`/applications/${encodeURIComponent(String(app.id))}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      navigate("/dashboard", { replace: true });
     } catch (deleteError) {
-      setStoredData((current) => ({
-        ...current,
-        error:
+      setActionError({
+        key: requestKey,
+        message:
           deleteError instanceof Error
             ? deleteError.message
             : "Unable to delete this application.",
-      }));
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-[#f7f8fc] px-4 py-8 text-slate-900 sm:px-6 lg:px-10 lg:py-10">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-slate-100 bg-white p-8 text-slate-500 shadow-sm">
+          Loading application...
+        </div>
+      </main>
+    );
+  }
 
   if (!app) {
     return (
@@ -248,9 +346,10 @@ const ApplicationDetail = () => {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white hover:bg-violet-700"
+                  disabled={isSaving}
+                  className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Save changes
+                  {isSaving ? "Saving..." : "Save changes"}
                 </button>
               </div>
             </form>
@@ -320,9 +419,10 @@ const ApplicationDetail = () => {
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                    disabled={isDeleting}
+                    className="rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Delete
+                    {isDeleting ? "Deleting..." : "Delete"}
                   </button>
                 </div>
               </div>

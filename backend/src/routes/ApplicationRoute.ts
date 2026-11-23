@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createApplication,
+  getApplication,
   getApplications,
   updateApplication,
   deleteApplication,
@@ -9,6 +10,10 @@ import {
 const router = express.Router();
 
 router.route("/").get(getApplications).post(createApplication);
-router.route("/:id").patch(updateApplication).delete(deleteApplication);
+router
+  .route("/:id")
+  .get(getApplication)
+  .patch(updateApplication)
+  .delete(deleteApplication);
 
 export default router;

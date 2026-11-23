@@ -5,6 +5,7 @@ import ApplicationForm from "../components/ApplicationForm";
 import { api } from "../services/api";
 import { useAuth } from "../context/authContextStore";
 import type { NewJobApplication } from "../types/application";
+import { toBackendApplicationStatus } from "../services/applicationMapper";
 
 const AddApplication = () => {
   const [formData, setFormData] = useState<NewJobApplication>({
@@ -41,8 +42,7 @@ const AddApplication = () => {
     try {
       const application = {
         ...formData,
-        status:
-          formData.status === "Offer" ? "Offer Received" : formData.status,
+        status: toBackendApplicationStatus(formData.status),
       };
       await api("/applications", {
         method: "POST",
