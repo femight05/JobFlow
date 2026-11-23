@@ -13,7 +13,18 @@ const register = async (req: Request, res: Response) => {
     }
     const user = new User({ name, email, password });
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "", {
+      expiresIn: "15d",
+    });
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({ error: "Internal Server Error", message: message });

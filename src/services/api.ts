@@ -10,10 +10,32 @@ export const api = async (endpoint: string, options: RequestInit = {}) => {
     },
   });
 
-  const data = await response.json();
+  const responseBody = await response.text();
+  let data;
+
+  if (responseBody.trim()) {
+    try {
+      data = JSON.parse(responseBody);
+    } catch {
+      if (response.ok) {
+        throw new Error("The server returned an invalid JSON response.");
+      }
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+    const message =
+      typeof data === "object" &&
+      data !== null &&
+      "message" in data &&
+      typeof data.message === "string"
+        ? data.message
+        : `Request failed with status ${response.status}.`;
+    throw new Error(message);
+  }
+
+  if (!responseBody.trim()) {
+    throw new Error(`The server returned an empty response (${response.status}).`);
   }
 
   return data;

@@ -2,17 +2,19 @@ import { BriefcaseBusiness, Check } from "lucide-react";
 import { api } from "../services/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContextStore";
 
 const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
     try {
       const data = await api("/user/register", {
@@ -32,6 +34,7 @@ const SignUpPage = () => {
       console.log(data);
     } catch (error) {
       console.error(error);
+      setError(error instanceof Error ? error.message : "Unable to create account");
     }
   };
 
@@ -149,10 +152,18 @@ const SignUpPage = () => {
               </div>
               <button
                 type="submit"
-                className="w-full rounded-xl bg-sky-700 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sky-200/70 transition hover:-translate-y-0.5 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-200"
+                className="w-full rounded-xl bg-sky-700 cursor-pointer px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-sky-200/70 transition hover:-translate-y-0.5 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-200"
               >
                 Create account
               </button>
+              {error && (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {error}
+                </p>
+              )}
             </form>
             <p className="mt-5 text-center text-xs leading-5 text-slate-400">
               You can update your details anytime.
