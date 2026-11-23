@@ -1,17 +1,21 @@
 import { BriefcaseBusiness, Check } from "lucide-react";
 import { api } from "../services/api";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SignUpPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const data = await api("/users/register", {
+      const data = await api("/user/register", {
         method: "POST",
 
         body: JSON.stringify({
@@ -20,6 +24,10 @@ const SignUpPage = () => {
           password,
         }),
       });
+
+      login(data.token, data.user);
+
+      navigate("/dashboard", { replace: true });
 
       console.log(data);
     } catch (error) {
