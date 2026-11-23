@@ -1,8 +1,66 @@
 import { ArrowLeft, BriefcaseBusiness, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import ApplicationForm from "../components/ApplicationForm";
+import { api } from "../services/api";
+import { useAuth } from "../context/authContextStore";
+import type { NewJobApplication } from "../types/application";
 
 const AddApplication = () => {
+  const [formData, setFormData] = useState<NewJobApplication>({
+    company: "",
+    position: "",
+    location: "",
+    jobType: "Full-time",
+    status: "Applied",
+    jobUrl: "",
+    note: "",
+  });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  const updateFormField = <K extends keyof NewJobApplication>(
+    field: K,
+    value: NewJobApplication[K],
+  ) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+
+    if (!token) {
+      setError("Please sign in to create an application.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const application = {
+        ...formData,
+        status:
+          formData.status === "Offer" ? "Offer Received" : formData.status,
+      };
+      await api("/applications", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(application),
+      });
+      navigate("/dashboard", { replace: true });
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to create application.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#f5f3ff_0%,#eef2ff_32%,#f8fafc_100%)] px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
@@ -46,30 +104,43 @@ const AddApplication = () => {
             </div>
           </div>
 
-          <div className="px-6 py-7 sm:px-9 sm:py-9">
-            <ApplicationForm />
-          </div>
-
-          <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-9">
-            <p className="text-xs text-slate-400">
-              Your application details are kept together for easy tracking.
-            </p>
-            <div className="flex flex-col-reverse gap-3 sm:flex-row">
-              <button
-                type="button"
-                className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="inline-flex items-center cursor-pointer justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200"
-              >
-                <Plus size={16} />
-                Add Application
-              </button>
+          <form onSubmit={handleSubmit}>
+            <div className="px-6 py-7 sm:px-9 sm:py-9">
+              <ApplicationForm
+                formData={formData}
+                onFieldChange={updateFormField}
+              />
+              {error && (
+                <p
+                  role="alert"
+                  className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {error}
+                </p>
+              )}
             </div>
-          </div>
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-9">
+              <p className="text-xs text-slate-400">
+                Your application details are kept together for easy tracking.
+              </p>
+              <div className="flex flex-col-reverse gap-3 sm:flex-row">
+                <Link
+                  to="/dashboard"
+                  className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-100"
+                >
+                  Cancel
+                </Link>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-violet-300 focus:outline-none focus:ring-4 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Plus size={16} />
+                  {isSubmitting ? "Adding..." : "Add Application"}
+                </button>
+              </div>
+            </div>
+          </form>
         </section>
       </div>
     </main>

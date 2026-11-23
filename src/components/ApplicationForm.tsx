@@ -1,9 +1,17 @@
-import { useState } from "react";
-import type { JobApplication } from "../types/application";
-import type { JobType, Status } from "../types/application";
+import type { JobType, NewJobApplication, Status } from "../types/application";
 
-const ApplicationForm = () => {
-  const [formData, setFormData] = useState<Partial<JobApplication>>({});
+interface ApplicationFormProps {
+  formData: NewJobApplication;
+  onFieldChange: <K extends keyof NewJobApplication>(
+    field: K,
+    value: NewJobApplication[K],
+  ) => void;
+}
+
+const ApplicationForm = ({
+  formData,
+  onFieldChange,
+}: ApplicationFormProps) => {
 
   const jobTypeOptions: JobType[] = [
     "Full-time",
@@ -24,7 +32,7 @@ const ApplicationForm = () => {
   const labelClassName = "text-sm font-semibold text-slate-700";
 
   return (
-    <form className="space-y-7">
+    <div className="space-y-7">
       <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
         <div>
           <label className={labelClassName} htmlFor="company">
@@ -36,10 +44,9 @@ const ApplicationForm = () => {
             name="company"
             autoComplete="organization"
             placeholder="e.g. Acme Inc."
-            value={formData.company || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, company: e.target.value }))
-            }
+            value={formData.company}
+            onChange={(event) => onFieldChange("company", event.target.value)}
+            required
             className={inputClassName}
           />
         </div>
@@ -54,10 +61,9 @@ const ApplicationForm = () => {
             name="position"
             autoComplete="organization-title"
             placeholder="e.g. Product Designer"
-            value={formData.position || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, position: e.target.value }))
-            }
+            value={formData.position}
+            onChange={(event) => onFieldChange("position", event.target.value)}
+            required
             className={inputClassName}
           />
         </div>
@@ -72,10 +78,9 @@ const ApplicationForm = () => {
             name="location"
             autoComplete="address-level2"
             placeholder="e.g. New York, NY or Remote"
-            value={formData.location || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, location: e.target.value }))
-            }
+            value={formData.location}
+            onChange={(event) => onFieldChange("location", event.target.value)}
+            required
             className={inputClassName}
           />
         </div>
@@ -87,11 +92,12 @@ const ApplicationForm = () => {
           <select
             id="jobType"
             name="jobType"
-            value={formData.jobType || ""}
+            value={formData.jobType}
             onChange={(e) => {
               const selectedJobType = e.target.value as JobType;
-              setFormData((prev) => ({ ...prev, jobType: selectedJobType }));
+              onFieldChange("jobType", selectedJobType);
             }}
+            required
             className={inputClassName}
           >
             <option value="" disabled>
@@ -112,11 +118,12 @@ const ApplicationForm = () => {
           <select
             id="status"
             name="status"
-            value={formData.status || ""}
+            value={formData.status}
             onChange={(e) => {
               const selectedStatus = e.target.value as Status;
-              setFormData((prev) => ({ ...prev, status: selectedStatus }));
+              onFieldChange("status", selectedStatus);
             }}
+            required
             className={inputClassName}
           >
             <option value="" disabled>
@@ -139,10 +146,9 @@ const ApplicationForm = () => {
             id="jobUrl"
             name="jobUrl"
             placeholder="https://company.com/careers/role"
-            value={formData.jobUrl || ""}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, jobUrl: e.target.value }))
-            }
+            value={formData.jobUrl}
+            onChange={(event) => onFieldChange("jobUrl", event.target.value)}
+            required
             className={inputClassName}
           />
         </div>
@@ -158,9 +164,7 @@ const ApplicationForm = () => {
           rows={4}
           placeholder="Add notes about the role, company, or application process"
           value={formData.note || ""}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, note: e.target.value }))
-          }
+          onChange={(event) => onFieldChange("note", event.target.value)}
           className={inputClassName}
         />
       </div>
@@ -169,7 +173,7 @@ const ApplicationForm = () => {
         Add the details you have now. You can update the application as things
         progress.
       </p>
-    </form>
+    </div>
   );
 };
 

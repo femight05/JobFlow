@@ -19,3 +19,5 @@ export interface JobApplication {
   description?: string;
   note?: string;
 }
+
+export type NewJobApplication = Omit<JobApplication, "id" | "appliedDate">;
