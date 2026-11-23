@@ -37,7 +37,7 @@ const login = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res
         .status(400)
-        .json({ message: "Please provide name, email and password" });
+        .json({ message: "Please provide email and password" });
     }
     const user = await User.findOne({ email });
     if (!user) {
@@ -50,7 +50,15 @@ const login = async (req: Request, res: Response) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "", {
       expiresIn: "15d",
     });
-    res.status(200).json({ message: "Login Successful", token });
+    res.status(200).json({
+      message: "Login Successful",
+      token,
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({ error: "Internal Server Error", message: message });
