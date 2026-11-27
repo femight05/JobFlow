@@ -27,7 +27,7 @@ const LoginPage = () => {
     } catch (submitError) {
       setError(
         submitError instanceof Error
-          ? "Something went wrong...Please try again."
+          ? "An error occurred...Please try again."
           : "Unable to log in.",
       );
     } finally {
